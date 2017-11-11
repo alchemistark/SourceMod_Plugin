@@ -87,6 +87,7 @@ public Plugin:myinfo =
 ・スパイの武器（24番と61番）が何故かスルーされている →スパイの武器スロットが変更されているため　スロットチェックを外した
 ・リスポン機能をcvar自動変更か指定秒で強制リスポンかを選択する
 ・最終スコアの時にメッセージを出す（ヒントメッセージかHUDか選択)
+・ラウンドをまたいだ時に発光が消えていない
 
 */
 
@@ -405,6 +406,11 @@ public ArmsRaceStart(){
 			//各種タイマーの初期化
 			if(t_glow[i] != null){
 				KillTimer(t_glow[i]);
+				//発行中なら消しておく
+				if(IsClientInGame(i) == true && IsPlayerAlive(i) == true){
+					TF2_RemoveCondition(i, TFCond_TeleportedGlow);
+					SetEntProp(i, Prop_Send, "m_bGlowEnabled", 0);
+				}
 			}
 			if(t_botkill[i] != null){
 				KillTimer(t_botkill[i]);
