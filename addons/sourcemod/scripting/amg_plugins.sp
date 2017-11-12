@@ -52,6 +52,7 @@ public OnPluginStart(){
 	RegAdminCmd("sm_killspawn", Cmd_killspawn, 0, "tele");
 	RegAdminCmd("sm_time", Cmd_time, 0, "time");
 	RegAdminCmd("sm_waiting", Cmd_waiting, 0, "loop WaitingForPlayers");
+	RegAdminCmd("sm_dragon", Cmd_dragons, 0, "");
 	
 	//cvar
 	v_spec = CreateConVar("sm_spec_say", "1", "1 = 観戦者の発言をゲーム中のプレイヤーに送信する");
@@ -89,6 +90,23 @@ public Action:Cmd_reload(client, args){
 	ReplyToCommand(client,"AMGプラグインをリロードしました。");
 	return false;
 }
+
+//ドラゴン渡しテスト
+public Action:Cmd_dragons(client, args){
+	TF2Items_GiveWeapon(client,21);
+	
+	new ent = -1;
+	//new Owner;
+	while ((ent = FindEntityByClassname(ent, "tf_weapon_flamethrower")) != -1){
+		if(client == GetEntPropEnt(ent, Prop_Send, "m_hOwnerEntity") && GetEntProp(ent, Prop_Send, "m_iItemDefinitionIndex") == 21){
+			SetEntProp(ent, Prop_Send, "m_iItemDefinitionIndex", 1178);
+			SetEntProp(ent, Prop_Send, "m_iEntityLevel", 5);
+			SetEntProp(ent, Prop_Send, "m_iEntityQuality", 6);
+			SetEntProp(ent, Prop_Send, "m_bInitialized", 1);
+		}
+	}
+}
+
 public Action:Command_All(client, const String:command[], argc){
 
 	new String:strCmd[200];
