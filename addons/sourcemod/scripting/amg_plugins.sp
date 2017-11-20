@@ -73,6 +73,8 @@ public OnPluginStart(){
 	HookEvent("player_score_changed", OnPlayerScoreChanged);
 	HookEvent("rocketpack_launch", OnPlayerrocketlaunch);
 	//HookEvent("teamplay_flag_event", OnFlagPick,EventHookMode_Pre);
+	HookEvent("player_hurt", OnPlayerHurt, EventHookMode_Pre);
+	
 	HookEntityOutput("item_teamflag", "OnPickUp", eo_FlagPickup);
 	
 }
@@ -120,7 +122,19 @@ public Action:Command_All(client, const String:command[], argc){
 		PrintToServer("Client:%d",client);
 		PrintToServer("CommandListener:%s",strCmd);
 	}
+ }
+public Action:Cmd_time(client, args){
+	new ent = -1;
+	ent = FindEntityByClassname(ent, "team_round_timer");
+	
+	if(ent == -1){
+		return false;
+	}
+	
+	FireEntityOutput(ent,"OnSetupFinished");
+	
 }
+
 
 new endflag = 0;
 public Action:Cmd_waiting(client, args){
@@ -146,6 +160,33 @@ public Cmd_WaitTimer(){
 public Action:Cmd_restart(Handle:timer){
 	ServerCommand("mp_waitingforplayers_restart 1");
 	Cmd_WaitTimer();
+}
+
+
+//HookEvent 被ダメ時
+public OnPlayerHurt(Handle:event, const String:name[], bool:dontBroadcast){
+
+	if(GetConVarInt(v_debug) == 0){
+		return false;
+	}
+	
+	new client = GetClientOfUserId(GetEventInt(event, "userid"));
+	
+	/*
+	GetEventInt(event, "custom")
+	ヘッドショット:1
+	バックスタブ:2
+	
+	スナイパーライフル:11
+	しっこ銃:14
+	
+	*/
+	
+	PrintToServer("Health:%d",GetClientHealth(client));
+	
+	if(GetEventInt(event, "health") == 0 && GetEventInt(event, "custom") != 2){
+		SetEntityHealth(client,100);
+	}
 }
 
 public Action:Cmd_killspawn(client, args){
@@ -205,11 +246,6 @@ public Action:Cmd_debug(client, args){
 	CloseHandle(Array);
 }
 
-
-public Action:Cmd_time(client, args){
-	PrintToServer("GetEngineTime:%f",GetEngineTime());
-	PrintToServer("GetGameTime:%f",GetGameTime());
-}
 
 new Handle:m_menu = INVALID_HANDLE;
 
@@ -370,7 +406,7 @@ public Action:Hook_SetTransmit(ent, client)
 	}
 	PrintToChatAll("can't see %d",client);
 
-	//8return Plugin_Handled;
+	//return Plugin_Handled;
 }
 
 public Action:Cmd_debug1(client, args){
@@ -459,7 +495,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 }
 
 public OnPlayerDeath(Handle:event, const String:name[], bool:dontBroadcast){
-
+	
 	if(GetConVarInt(v_spawn) == 0){
 		return false;
 	}
