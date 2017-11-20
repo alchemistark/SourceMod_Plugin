@@ -46,6 +46,7 @@ public Action:Cmd_flag(client, args){
 //待機時間開始時に呼び出される（tf2_stocks.inc)
 public TF2_OnWaitingForPlayersStart()
 {
+	PrintToServer("Enable DoorOpen");
 	g_flag = 1;	//フラグを立てる
 	//通過チェック
 	//PrintToServer("WaitTimeStart");
