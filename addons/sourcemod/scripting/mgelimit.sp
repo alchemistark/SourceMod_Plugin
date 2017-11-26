@@ -1,12 +1,15 @@
 #include <sourcemod>
 #include <tf2_stocks>
 
+//有効にするMGEマップ名
+#define MGE_MAP "mge_training_v8_beta4b"
+
 public Plugin:myinfo = 
 {
 	name = "[TF2]MGE Limit",
 	author = "不利ｼﾞｮｲﾅｰAMG",
 	description = "MGEの縛りルール",
-	version = "1.0",
+	version = "1.0.1",
 	url = ""
 }
 
@@ -54,9 +57,9 @@ public OnPluginStart(){
 //マップがMGEでなければ無効化する
 public OnMapStart(){
 
-	new String:strMapName[5];
+	new String:strMapName[50];
 	GetCurrentMap(strMapName,sizeof(strMapName));
-	if(StrEqual(strMapName,"mge_") == true){
+	if(StrEqual(strMapName,MGE_MAP) == true){
 		SetConVarInt(v_enable,1);
 	}
 	else{
@@ -264,13 +267,13 @@ public OnPlayerHurt(Handle:event, const String:name[], bool:dontBroadcast){
 				FakeClientCommandEx(client,"dropitem");
 				PrintHintText(client,"Stun!");
 				SetEntityHealth(client, GetConVarInt(v_damage));
-					TF2_StunPlayer(client,GetConVarFloat(v_stuntime),GetConVarFloat(v_stunspeed),TF_STUNFLAG_SLOWDOWN,0);
+				TF2_StunPlayer(client,GetConVarFloat(v_stuntime),GetConVarFloat(v_stunspeed),TF_STUNFLAG_SLOWDOWN,0);
 			}
 		}
 	}
 	else{
 		//普通にダメージが通っているならダメージ記録を破棄
-		g_enable[client] = 0;
+		g_damage[client] = 0;
 	}
 	
 	return Plugin_Continue;
