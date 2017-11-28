@@ -9,7 +9,7 @@ public Plugin:myinfo =
 	name = "[TF2]MGE Limit",
 	author = "不利ｼﾞｮｲﾅｰAMG",
 	description = "MGEの縛りルール",
-	version = "1.0.1",
+	version = "1.0.2",
 	url = ""
 }
 
@@ -211,7 +211,8 @@ public OnPlayerHurt(Handle:event, const String:name[], bool:dontBroadcast){
 		}
 	}
 	//スナイパーかつヘッドショットである(ML_MODE_SNIPERが有効中)
-	else if(g_enable[attacker] == ML_MODE_SNIPER && custom == 1){
+	//ヒットマンズ・ヒートメーカーはcustomが51
+	else if(g_enable[attacker] == ML_MODE_SNIPER && (custom == 1 || custom == 51)){
 		flag = 1;
 	}
 	//ダメージを受けたのはハンデ中のソルである(ML_MODE_SOLDIERが有効中)
