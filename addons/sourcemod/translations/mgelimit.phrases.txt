@@ -25,7 +25,7 @@
 	"Engineer"
 	{
 		"en"			"Enable destroy building each round"
-		"jp"			"毎ラウンドごとに建造物を全て消去する"
+		"jp"			"毎ラウンドごとに装置を全て消去する"
 	}
 	"Soldier"
 	{
