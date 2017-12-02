@@ -9,7 +9,7 @@ public Plugin:myinfo =
 	name = "[TF2]MGE Limit",
 	author = "不利ｼﾞｮｲﾅｰAMG",
 	description = "MGEの縛りルール",
-	version = "1.0.2",
+	version = "1.0.3",
 	url = ""
 }
 
