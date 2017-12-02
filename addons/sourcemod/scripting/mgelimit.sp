@@ -291,30 +291,36 @@ public OnPlayerDeath(Handle:event, const String:name[], bool:dontBroadcast){
 		return Plugin_Continue;
 	}
 	
+	//キルした人
+	new attacker = GetClientOfUserId(GetEventInt(event,"attacker"));
+	
+	//死んだ人
+	new die_client = GetClientOfUserId(GetEventInt(event,"userid"));
+	
 	new ent = -1;
 	while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)	//名前からエンティティを探す
 	{
-		Cmd_entkill(ent);
+		Cmd_entkill(ent,attacker,die_client);
 	}
 	while ((ent = FindEntityByClassname(ent, "obj_dispenser")) != -1)	//名前からエンティティを探す
 	{
-		Cmd_entkill(ent);
+		Cmd_entkill(ent,attacker,die_client);
 	}
 	while ((ent = FindEntityByClassname(ent, "obj_teleporter")) != -1)	//名前からエンティティを探す
 	{
-		Cmd_entkill(ent);
+		Cmd_entkill(ent,attacker,die_client);
 	}
 	
 	return Plugin_Continue;
 }
 
-public Cmd_entkill(int ent){
+public Cmd_entkill(int ent,int client1, int client2){
 
 	new Owner;
 	
 	//デバイスの所有者が機能を有効にしていたら破壊する
 	Owner = GetEntPropEnt(ent, Prop_Send, "m_hBuilder");
-	if(g_enable[Owner] == ML_MODE_ENGINEER){
+	if(g_enable[Owner] == ML_MODE_ENGINEER && (Owner == client1 || Owner == client2)){
 		AcceptEntityInput(ent, "Kill");
 	}
 }
