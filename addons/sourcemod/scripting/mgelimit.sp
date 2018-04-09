@@ -3,6 +3,7 @@
 
 //有効にするMGEマップ名
 #define MGE_MAP "mge_training_v8_beta4b"
+#define MGE_MAP_NEW "mge_chillypunch_final2_fix"
 
 public Plugin:myinfo = 
 {
@@ -59,7 +60,7 @@ public OnMapStart(){
 
 	new String:strMapName[50];
 	GetCurrentMap(strMapName,sizeof(strMapName));
-	if(StrEqual(strMapName,MGE_MAP) == true){
+	if(StrEqual(strMapName,MGE_MAP) == true || StrEqual(strMapName,MGE_MAP_NEW) == true){
 		SetConVarInt(v_enable,1);
 	}
 	else{
@@ -82,6 +83,8 @@ public Action:OnPlayerChangeclass(client, const String:command[], argc){
 	}
 
 	new Float:vec[3];
+	new Float:vecMapMin[3];
+	new Float:vecMapMax[3];
 	new bool:blArena;
 	
 	new String:strClass[10];
@@ -90,15 +93,28 @@ public Action:OnPlayerChangeclass(client, const String:command[], argc){
 	
 	//現在位置を比較し、BBallArenaに居るか確認する
 	GetClientAbsOrigin(client, vec);
-	//もういい力技する
-	if(12800.00 < vec[0] && vec[0] < 13910.00 &&
-	-4471.00 < vec[1] && vec[1] < -2470.00 &&
-	-950.00 < vec[2] && vec[2] < -700.00){
+	
+	//もういい力技する-----------------------------------------------------------------
+	new String:strMapName[50];
+	GetCurrentMap(strMapName,sizeof(strMapName));
+	if(StrEqual(strMapName,MGE_MAP) == true){
+		vecMapMin[0] = 12800.00; vecMapMin[1] = -4471.00; vecMapMin[2] = -950.00;
+		vecMapMax[0] = 13910.00; vecMapMax[1] =  -2470.00; vecMapMax[2] = -700.00;
+	}
+	else if(StrEqual(strMapName,MGE_MAP_NEW) == true){
+		vecMapMin[0] = 4420.00; vecMapMin[1] = -6000.00; vecMapMin[2] = -5000.00;
+		vecMapMax[0] = 5565.00; vecMapMax[1] =  -3940.00; vecMapMax[2] = 400.00;
+	}
+	
+	if(vecMapMin[0] < vec[0] && vec[0] < vecMapMax[0] &&
+	vecMapMin[1] < vec[1] && vec[1] < vecMapMax[1] &&
+	vecMapMin[2] < vec[2] && vec[2] < vecMapMax[2]){
 		blArena = true;
 	}
 	else{
 		blArena = false;
 	}
+	//----------------------------------------------------------------------------
 	
 	new Handle:m_menu = CreateMenu(Menu_limit);
 	//SetMenuTitle(m_menu, "Enable MGE Limit Mode?");

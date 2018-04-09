@@ -51,8 +51,14 @@ public TF2_OnWaitingForPlayersStart()
 	//通過チェック
 	//PrintToServer("WaitTimeStart");
 	//HookEvent("player_death", OnPlayerDeath);	//イベントのフックを開始
-
-	CreateTimer(5.0, Cmd_open);	//即実行するとうまくいかないので実行を遅延させるタイマー
+	
+	new ent;
+	while ((ent = FindEntityByClassname(ent, "team_round_timer")) != -1)	//名前からエンティティを探す
+	{
+		CreateTimer(5.0, Cmd_open);	//即実行するとうまくいかないので実行を遅延させるタイマー
+		g_flag = 0;	//フラグも折る
+		break;
+	}
 }
 
 //実際にドアを開ける処理

@@ -53,6 +53,12 @@ public OnPluginStart(){
 	RegAdminCmd("sm_time", Cmd_time, 0, "time");
 	RegAdminCmd("sm_waiting", Cmd_waiting, 0, "loop WaitingForPlayers");
 	RegAdminCmd("sm_dragon", Cmd_dragons, 0, "");
+	RegAdminCmd("sm_entinput", Cmd_EntInput, 0, "");
+	RegAdminCmd("sm_ent", Cmd_Ent, 0, "");
+	RegAdminCmd("sm_entspawn", Cmd_EntSpawn, 0, "");
+	RegAdminCmd("sm_prop", Cmd_prop, 0, "");
+	
+	
 	
 	//cvar
 	v_spec = CreateConVar("sm_spec_say", "1", "1 = 観戦者の発言をゲーム中のプレイヤーに送信する");
@@ -86,11 +92,143 @@ public OnPlayerrocketlaunch(Handle:event, const String:name[], bool:dontBroadcas
 
 }
 
+public EntityHook(const char[] output, int caller, int activator, float delay){
+	PrintToChatAll("%d",GetEntProp(caller, Prop_Data, "m_iHealth"));
+	PrintToChatAll("%s",output);
+	PrintToChatAll("m_iHealth");
+}
+
+public Action:Cmd_Ent(client, args){
+	new String:ent[250];
+	new String:input[250];
+	if(args != 2){
+		return Plugin_Continue;
+	}
+	GetCmdArg(1,ent,250);
+	GetCmdArg(2,input,250);
+	AcceptEntityInput(StringToInt(ent),input);
+}
+
+public Action:Cmd_EntSpawn(client, args){
+	new String:entname[250];
+	new ent = -1;
+	if(args != 1){
+		return Plugin_Continue;
+	}
+	GetCmdArg(1,entname,250);
+	
+	ent = CreateEntityByName(entname);
+	
+	if(ent != -1){
+		PrintToChat(client,"Entityの作成に失敗しました");
+	}
+	else{
+		PrintToChat(client,"Entityを作成しました。EntityIndex:%d",ent);
+	}
+}
+
+new renban = 0;
+
 //デバッグ用 プラグインのリロード
 public Action:Cmd_reload(client, args){
 	ServerCommand("sm plugins reload amg_plugins");
 	ReplyToCommand(client,"AMGプラグインをリロードしました。");
+	PrintToServer("Tick:%d",GetGameTickCount());
 	return false;
+}
+
+public Action:Cmd_prop(client, args){
+
+	//new ent = CreateEntityByName("prop_dynamic");
+	new ent = CreateEntityByName("prop_physics_override");
+	
+	new filter;
+	new flag;
+	new String:temp[255];
+	
+
+	//フィルター関係///////////////////////////
+	
+	while ((filter = FindEntityByClassname(filter, "filter_activator_tfteam")) != -1){
+		GetEntPropString(filter, Prop_Data, "m_iName", temp,255);
+		if(StrEqual(temp,"prop_filter")){
+			//既にフィルターが生成されていた場合、削除する
+			//PrintToChat(client,"kill filter:%d",filter);
+			AcceptEntityInput(filter, "Kill");
+		}
+	}
+	
+	filter = CreateEntityByName("filter_activator_tfteam");	//フィルターを作成する
+	SetEntProp(filter, Prop_Data, "m_iTeamNum",TFTeam_Blue);	//フィルター対象チームを設定
+	
+	DispatchSpawn(filter);	//スポーンさせる	
+	
+	//フィルター名を設定する
+	SetEntPropString(filter, Prop_Data, "m_iName", "prop_filter");
+
+	//Propにフィルターを設定する
+	//フィルター名とフィルターEntityが両方必要？
+	SetEntPropString(ent, Prop_Data, "m_iszDamageFilterName","prop_filter");
+	
+	//PropにフィルターEntityを設定
+	SetEntPropEnt(ent, Prop_Data, "m_hDamageFilter",filter);
+	
+	//Prop関係//////////////////////////////////////
+	
+	//Propのダメージイベントをフックする
+	HookEntityOutput("prop_physics","OnTakeDamage",EntityHook);
+	//HookSingleEntityOutput(ent,"OnHealthChanged",EntityHook);
+	
+	//PrintToChat(client,"%d",GetEntProp(ent, Prop_Data,"m_OnTakeDamage"));
+	
+	//Propにモデルを設定する
+	SetEntPropString(ent, Prop_Data, "m_ModelName", "models/props_hydro/water_barrel_cluster.mdl");
+	//衝突判定を設定
+	SetEntProp(ent, Prop_Data, "m_nSolidType",6);
+	
+	//チェックのために名前をつける 同じ名前は付けられない(破壊されていても)
+	Format(temp,255,"prop_test_%d",renban++);
+	SetEntPropString(ent, Prop_Data, "m_iName", temp);
+	
+	//Propをスポーンさせる
+	if(DispatchSpawn(ent) == false){
+		PrintToChat(client,"spawn faild");
+	}
+	GetEntPropString(ent, Prop_Data, "m_iName", temp, 255);
+	PrintToChat(client,"Prop:%d",ent);
+	PrintToChat(client,"entname %s", temp);
+	GetEdictClassname(ent,temp,255);
+	PrintToChat(client,"entclassname %s", temp);
+	
+	
+	//Propのヘルスを設定する
+	SetEntProp(ent, Prop_Data, "m_iHealth", 100);
+	
+	//Propがダメージを受けるようにする
+	SetEntProp(ent, Prop_Data, "m_takedamage", 2, 1);	//Mortal
+	
+	// GetEntPropString(ent, Prop_Data, "m_iClassname", temp, 255);
+	// PrintToChat(client,"m_iClassname %s", temp);
+	
+	//位置を保存
+	new float:vec[3];
+	GetEntPropVector(ent, Prop_Data, "m_vecAbsOrigin", vec);
+	PrintToChat(client,"Vec %d,%d,%d",vec[0],vec[1],vec[2]);
+	GetClientAbsOrigin(client, vec);
+	PrintToChat(client,"Vec %d,%d,%d",vec[0],vec[1],vec[2]);
+	TeleportEntity(ent, vec, NULL_VECTOR, NULL_VECTOR);
+	GetEntPropVector(ent, Prop_Data, "m_vecAbsOrigin", vec);
+	PrintToChat(client,"Vec %d,%d,%d",vec[0],vec[1],vec[2]);
+	
+	// ent = -1;
+	// while ((ent = FindEntityByClassname(ent, "prop_physics_override")) != -1){
+		// PrintToChat(client,"ent %d",ent);
+		// GetEntPropString(ent, Prop_Data, "m_iGlobalname", temp, 255);
+		// PrintToChat(client,"entname %s", temp);
+	// }
+	
+	
+	
 }
 
 //ドラゴン渡しテスト
@@ -210,8 +348,22 @@ public Action:Cmd_buki(client, args){
 	TF2_AddCondition(client, TFCond_TeleportedGlow, 5.0);
 }
 
+public Action:Cmd_EntInput(client, args){
+
+	new String:ent[250];
+	new String:input[250];
+	if(args != 2){
+		return Plugin_Continue;
+	}
+	GetCmdArg(1,ent,250);
+	GetCmdArg(2,input,250);
+	PrintToChat(client,"Input %s",input);
+	Entity_Input(ent,input);
+}
+
 public Action:Cmd_debug(client, args){
-	//test(client);
+	test(client);
+	return;
 	//new String:args[30];
 	//GetCmdArgString(args,30);
 	//PrintToServer("%s",args);
@@ -353,6 +505,7 @@ public test(int client){
 	
 	if(g_ent != -1){
 		RemoveEdict(g_ent);
+		SDKUnhook(g_ent, SDKHook_SetTransmit, Hook_SetTransmit);
 		g_ent = -1;
 	}
 	
@@ -364,19 +517,22 @@ public test(int client){
 	
 		PrintToServer("2");
 	new ent = CreateEntityByName("info_particle_system");	//パーティクルを生成する
+	if(SDKHookEx(ent, SDKHook_SetTransmit, Hook_SetTransmit)){
+		PrintToServer("SDKHookEx ok");
+	}
 	TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);		//パーティクルをclientの位置に設定する
 	
 	decl String:name[128];
 	Format(name, sizeof(name), "effect_%i", ent);	//パーティクルに名前をつける(ent番号でユニーク化する)
 	DispatchKeyValue(ent, "targetname", name);
-	DispatchKeyValue(ent, "effect_name", "duel_blue");	//呼び出すパーティクルを指定
-	DispatchSpawn(ent)		//パーティクル出現
+	//DispatchKeyValue(ent, "effect_name", "duel_blue");
+	DispatchKeyValue(ent, "effect_name", "unusual_steaming");//呼び出すパーティクルを指定
+	DispatchSpawn(ent);		//パーティクル出現
 	ActivateEntity(ent);	//?パーティクルのアクティブ化？アニメーションがあるものを動作させる？
-	SetVariantString(name);	//分からない　これどこに送ってるの？
-    SetVariantString("flag");
+	//SetVariantString(name);	//分からない　これどこに送ってるの？
+    //SetVariantString("flag");
 	AcceptEntityInput(ent, "start");	//パーティクルの実行　アニメーション開始？
-	
-		PrintToServer("3");
+	PrintToServer("3");
 	Format(name, sizeof(name), "target%i", client);
 	DispatchKeyValue(client, "targetname", name);	//パーティクルの親(client)に命名
 	DispatchKeyValue(ent, "parentname", name);		//名前から親を指定
@@ -389,8 +545,6 @@ public test(int client){
 	g_ent = ent;
 	
 	PrintToChatAll("5");
-	
-	SDKHook(ent, SDKHook_SetTransmit, Hook_SetTransmit);
 	//Hook_SetTransmit(ent,client);
 
 }
@@ -411,14 +565,16 @@ public Action:Hook_SetTransmit(ent, client)
 
 public Action:Cmd_debug1(client, args){
 	
-		if(g_ent != -1){
-			AcceptEntityInput(g_ent, "ClearParent");
-			new Float:pos[3] = {0,0,0};
-			TeleportEntity(g_ent, pos, NULL_VECTOR, NULL_VECTOR);	
-			//ここにタイマー
-			RemoveEdict(g_ent);
-			g_ent = -1;
-		}
+	new votes[] = {5,3,9,2,4,6,7,1,8,10};
+	PrintToServer("sizeof(votes):%d",sizeof(votes));
+	new i=0;
+	for(i=0;i<10;i++){
+		PrintToServer("votes[%d]:%d",i,votes[i]);
+	}
+	SortIntegers(votes,sizeof(votes),Sort_Descending);
+	for(i=0;i<10;i++){
+		PrintToServer("votes[%d]:%d",i,votes[i]);
+	}
 }
 
 //EntityにInputを送信
@@ -428,8 +584,11 @@ public Entity_Input(String:classname[], String:Input[]){
  
 	while ((ent = FindEntityByClassname(ent, classname)) != -1)  
 	{
-		//PrintToServer("entity %s find",classname);
+		PrintToServer("entity %s find",classname);
 		int ref = EntIndexToEntRef(ent);
+		//PrintToServer("%d",GetEntProp(ref, Prop_Data, "m_nSolidType"));
+		//PrintToServer("%d",GetEntProp(ref, Prop_Data, "m_usSolidFlags"));
+		PrintToChatAll("ent %d, ref %d",ent,ref);
 		AcceptEntityInput(ref, Input);
 	}
 	
