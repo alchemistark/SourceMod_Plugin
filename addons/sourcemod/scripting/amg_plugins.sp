@@ -85,7 +85,6 @@ public OnPluginStart(){
 	
 }
 
-
 public OnPlayerrocketlaunch(Handle:event, const String:name[], bool:dontBroadcast){
 
 	SetEntPropFloat(GetClientOfUserId(GetEventInt(event, "userid")), Prop_Send, "m_flItemChargeMeter", 100.0,1);
