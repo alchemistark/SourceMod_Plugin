@@ -2,7 +2,7 @@
 
 ・必要ファイル  
 plugins/armsrace.smx  
-config/armsrace.cfg
+configs/armsrace.cfg
 
 CS:GOの軍拡競争を模したモードです。
 
