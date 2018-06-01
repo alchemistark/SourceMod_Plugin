@@ -1,7 +1,7 @@
 ## [TF2]MGE Limit
 
 ・必要ファイル  
-plugins/mgelimit.smx
+plugins/mgelimit.smx  
 translations/mgelimit.phrases.txt
 
 MGEに各種縛りルールを追加します。  
