@@ -4,47 +4,56 @@
 	{
 		"en"			"Enable MGE Limit Mode?"
 		"jp"			"MGE Limit Modeを有効にしますか？"
+		"ru"			"Включить MGE Limit Mode?"
 	}
 	
 	"Spy_1"
 	{
 		"en"			"Enable back stub only"
 		"jp"			"バックスタブのみ有効"
+		"ru"			"Включить только удар в спину ножом"
 	}
 	
 	"Spy_2"
 	{
 		"en"			"Enable stub and revolver"
 		"jp"			"バックスタブとリボルバーのみ有効"
+		"ru"			"Включить удар ножом и револьвер"
 	}
 	"Sniper"
 	{
 		"en"			"Enable to only the headshot"
 		"jp"			"ヘッドショットのみ有効"
+		"ru"			"Включить только выстрел в голову"
 	}
 	"Engineer"
 	{
 		"en"			"Enable destroy building each round"
 		"jp"			"毎ラウンドごとに装置を全て消去する"
+		"ru"			"Разрешить разрушать постройки каждый раунд"
 	}
 	"Soldier"
 	{
 		"en"			"Enable Handicap"
 		"jp"			"ハンディキャップを有効にする"
+		"ru"			"Включить гандикап"
 	}
 	"MenuDisable"
 	{
 		"en"			"Disable"
 		"jp"			"無効にする"
+		"ru"			"Отключить"
 	}
 	"Enable"
 	{
 		"en"			"[MGE Limit]Disable MGE Limit Mode"
 		"jp"			"[MGE Limit]MGE Limit Modeを有効にしました"
+		"ru"			"[MGE Limit]Отключить MGE Limit Mode"
 	}
 	"Disable"
 	{
 		"en"			"[MGE Limit]Enable MGE Limit Mode"
 		"jp"			"[MGE Limit]MGE Limit Modeを無効にしました"
+		"ru"			"[MGE Limit]Включить MGE Limit Mode"
 	}
 }
